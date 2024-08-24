@@ -1,0 +1,15 @@
+{
+  "name": "rag-langchain",
+  "version": "1.0.0",
+  "description": "A RAG system using langchain to retrieve & generate answers from PDFs.",
+  "main": "index.js",
+  "author": "Varun Kumar <varunon9@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@langchain/openai": "^0.2.7",
+    "@pinecone-database/pinecone": "^3.0.1",
+    "dotenv": "^16.4.5",
+    "langchain": "^0.2.17",
+    "pdf-parse": "^1.1.1"
+  }
+}
