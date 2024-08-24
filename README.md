@@ -49,16 +49,10 @@ PINECONE_API_KEY=your_pinecone_api_key
 
 Run `node .`
 
-**First time**-
-
 - It will create index if not exists
 - It will process sample PDF for the first time
 - Processing PDF = Parsing, Chunking, Embeddings via OpenAI text-embedding-3-large model and storing embedding in Pinecone Vector db
-
-**Subsequent times**-
-
-- It'll retrieve top 5 matching chunks
-- Todo: generating answer using LLM (OpenAI gpt-4o-mini) based on top matching chunks
+- It will then keep accepting queries from terminal and generate answer from PDF
 
 
 Check `index.js` for more details and to get started.

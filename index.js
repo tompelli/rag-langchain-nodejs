@@ -1,7 +1,9 @@
 require('dotenv').config()
+const readline = require('readline');
 
 const { chunkTexts } = require('./src/chunk-texts');
 const { embedTexts } = require('./src/embed-texts');
+const { generateAnswer } = require('./src/generate-answer');
 const { extractTextsFromPDF } = require('./src/parse-pdf');
 const { checkIndexExists, createIndex, describeIndexStats, retrieveRelevantChunks, storeEmbeddings } = require('./src/vector-db');
 
@@ -33,8 +35,44 @@ const init = async () => {
   }
 }
 
-init().then(() => {
-  console.log('Success')
-}).catch(error => {
-  console.log(error);
-})
+
+const main = async () => {
+  // Create index and store chunks and embeddings from pdfs/basic-concepts-gst.pdf
+  // This will only happen for the first time
+  await init();
+
+  // Create an interface for terminal input
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  // Function to prompt the user and handle the query
+  const promptUser = () => {
+    rl.question('Enter your query (type "quit" to exit): ', async query => {
+      if (query.toLowerCase() === 'quit' || query.toLowerCase() === 'exit') {
+        console.log('Exiting...');
+        rl.close();
+        return;
+      }
+
+      const relevantChunksMatchingQuery = await retrieveRelevantChunks(query);
+      console.log(relevantChunksMatchingQuery)
+      const answer = await generateAnswer(query, relevantChunksMatchingQuery);
+      // Print the query and answer with different colors
+      console.log('-----------------------------------');
+      console.log(`Query: ${query}`);
+      console.log(`\x1b[31mAnswer: ${answer}\x1b[0m`); // \x1b[31m sets the text color to red, \x1b[0m resets it
+      console.log('-----------------------------------');
+
+      // Prompt the user again after answering
+      promptUser();
+    });
+  };
+
+  // Start the loop
+  promptUser();
+};
+
+// Run the main function
+main();
