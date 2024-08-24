@@ -8,14 +8,19 @@ const NAMESPACE = 'test-namespace'
 // https://docs.pinecone.io/guides/get-started/quickstart
 const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
 
+/**
+ * 
+ * @param {*} embeddings Array of embedding & chunk: [{embedding: [], chunk: ''}]
+ * @param {*} namespace 
+ */
 async function storeEmbeddings(embeddings, namespace = NAMESPACE) {
   const index = pc.index(DB_INDEX);
 
   for (let i = 0; i < embeddings.length; i++) {
     await index.namespace(namespace).upsert([{
       id: `chunk-${i}`,
-      values: embeddings[i],
-      metadata: { namespace: namespace }
+      values: embeddings[i].embedding,
+      metadata: { chunk: embeddings[i].chunk }
     }]);
   }
 }
@@ -53,16 +58,17 @@ const describeIndexStats = async () => {
   return stats;
 }
 
+// https://docs.pinecone.io/guides/data/query-data
 async function retrieveRelevantChunks(query, namespace = NAMESPACE) {
-  const queryEmbedding = await embedTexts([query]);
+  const embeddingDataArr = await embedTexts([query]);
   const index = pc.index(DB_INDEX);
   const results = await index.namespace(namespace).query({
-    vector: queryEmbedding,
+    vector: embeddingDataArr[0].embedding,
     topK: 5, // Number of relevant chunks to retrieve
-    includeValues: true
+    includeValues: true,
+    includeMetadata: true,
   });
-
-  return results.matches.map(match => match.metadata.text);
+  return results.matches.map(match => match.metadata.chunk);
 }
 
 // Storing embeddings in Pinecone

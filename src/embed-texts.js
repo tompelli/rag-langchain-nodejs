@@ -14,16 +14,19 @@ async function embedTexts(textChunks) {
     batchSize: 512, // Default value if omitted is 512. Max is 2048
     model: 'text-embedding-3-large'
   });
-  const embeddings = [];
+  const embeddingsDataArr = []; //[{embedding: [], chunk: '}]
 
   for (const chunk of textChunks) {
     console.log('Embedding chunk', chunk);
     const embedding = await embedder.embedQuery(chunk);
-    embeddings.push(embedding);
+    embeddingsDataArr.push({
+      embedding,
+      chunk
+    });
     console.log('Embedding value', embedding)
   }
 
-  return embeddings;
+  return embeddingsDataArr;
 }
 
 //const embeddings = await embedText(chunks);
